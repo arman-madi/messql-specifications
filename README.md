@@ -34,7 +34,7 @@ x1	2	c3	4
 --> // Blocks can be explecitly shown whithin brackets {} in which every instruction will run over the previous result 
 --> // regardless of having them in a single line or multiple lines
 --> {
--->	SELECT regex(/^\w+\s/, _raw_log) AS f1 | WHERE f1 = "x1"
+--> SELECT regex(/^\w+\s/, _raw_log) AS f1 | WHERE f1 = "x1"
 --> PRINT
 x1	2	c3	4 
 f1=x1
@@ -66,11 +66,30 @@ a1	a2	a3
 SELECT helps to create and add more fields
  ```
  messq --log-source a_log=a.log
- --> SELECT split(_raw_log) AS c | PRINT
+ --> SELECT split(_raw_log) AS strcat("c", _i) | PRINT
 a1	a2	a3
 c1=a1, c2=a2, c3=a3
 -------
 1	2	3	4
 c1=1, c2=2, c3=3, c4=4
  ```
- 
+
+ WHERE filters logs based on conditions
+ ```
+ messq --log-source b=b.log
+ --> WHERE _raw_log.contains("b1")
+ b1	2
+ ```
+
+ GROUP BY will groups logs based on given fields and run aggregation functions on each group
+ ```
+messq --log-source a_log=a.log --log-source b_log=b.log
+--> SELECT split(_raw_log) AS strcat("c", _i)
+--> GROUP BY c4 AGGREGATE strcat(c1) AS agg
+| agg |
+----------
+ a1b1
+ 1x1
+```
+
+
